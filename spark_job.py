@@ -40,7 +40,11 @@ DEFAULT_ARGS = {
     'email_on_retry': False
 }
 
-CLUSTER_ID = 'j-3BCJA64MODRWP'
+import boto3
+client = boto3.client('emr')
+lst = client.list_clusters()
+cluster_id = list(filter(lambda x: x['Status']['State'] == 'WAITING', lst['Clusters']))[0]['Id']
+CLUSTER_ID = cluster_id
 
 def retrieve_s3_file(**kwargs):
     s3_location = kwargs['dag_run'].conf['s3_location'] 

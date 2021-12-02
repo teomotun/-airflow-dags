@@ -42,9 +42,13 @@ DEFAULT_ARGS = {
 
 import boto3
 client = boto3.client('emr')
-lst = client.list_clusters()
-cluster_id = list(filter(lambda x: x['Status']['State'] == 'WAITING', lst['Clusters']))[0]['Id']
-print(cluster_id)
+try:
+    lst = client.list_clusters()
+    cluster_id = list(filter(lambda x: x['Status']['State'] == 'WAITING', lst['Clusters']))[0]['Id']
+    print(cluster_id)
+except:
+    "Cluster ID wasn't retrieved, assigning arbitrary ID"
+    cluster_id = "j-2NM10FZ9Q464V"
 CLUSTER_ID = cluster_id
 
 def retrieve_s3_file(**kwargs):

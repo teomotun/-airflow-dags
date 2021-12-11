@@ -89,7 +89,7 @@ SPARK_TEST_STEPS = [
                 #'-s','s3a://demo-wcd/banking.csv',
                 '-s', "{{ task_instance.xcom_pull('parse_request', key='s3location') }}",
                 '-d','s3://data-ingestion-output-path/',
-                '-c','job',
+                '-c','Month',
                 '-m','append',
                 '--input-options','header=true'
             ]

@@ -29,6 +29,7 @@ from airflow.contrib.sensors.emr_step_sensor import EmrStepSensor
 from airflow.contrib.operators.emr_terminate_job_flow_operator \
         import EmrTerminateJobFlowOperator
 from airflow.operators.python_operator import PythonOperator
+import boto3
 
 
 DEFAULT_ARGS = {
@@ -40,7 +41,7 @@ DEFAULT_ARGS = {
     'email_on_retry': False
 }
 
-import boto3
+# Get Cluster ID
 client = boto3.client('emr')
 try:
     lst = client.list_clusters()
@@ -50,6 +51,16 @@ except:
     "Cluster ID wasn't retrieved, assigning arbitrary ID"
     cluster_id = "j-2NM10FZ9Q464V"
 CLUSTER_ID = cluster_id
+
+
+# Get Artifact location from S3
+session = boto3.Session()
+s3 = session.resource('s3')
+bucket_name = "data-ingestion-scala-artifacts"
+my_bucket = s3.Bucket(bucket_name)
+jar_artifact = max([str(my_bucket_object.key) for my_bucket_object in my_bucket.objects.all() if \
+                     str(my_bucket_object.key).endswith("jar")])
+jar_artifact_location = "s3://" + bucket_name + "/" + jar_artifact
 
 def retrieve_s3_file(**kwargs):
     s3_location = kwargs['dag_run'].conf['s3_location'] 
@@ -70,13 +81,14 @@ SPARK_TEST_STEPS = [
                 '--driver-memory','512m',
                 '--executor-memory','3g',
                 '--executor-cores','2',
-                's3://demo-wcd/wcd_final_project_2.11-0.1.jar',
-                '-p','wcd-demo',
+                #'s3://demo-wcd/wcd_final_project_2.11-0.1.jar',
+                jar_artifact_location,
+                '-p','Data-Ingestion-Project',
                 '-i','Csv',
                 '-o','parquet',
                 #'-s','s3a://demo-wcd/banking.csv',
                 '-s', "{{ task_instance.xcom_pull('parse_request', key='s3location') }}",
-                '-d','s3://demo-wcd/',
+                '-d','s3://data-ingestion-output-path/',
                 '-c','job',
                 '-m','append',
                 '--input-options','header=true'

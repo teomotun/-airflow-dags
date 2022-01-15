@@ -54,14 +54,13 @@ CLUSTER_ID = cluster_id
 
 
 # Get Artifact location from S3
-#session = boto3.Session()
-#s3 = session.resource('s3')
-#bucket_name = "data-ingestion-scala-artifacts"
-#my_bucket = s3.Bucket(bucket_name)
-#jar_artifact = max([str(my_bucket_object.key) for my_bucket_object in my_bucket.objects.all() if \
-#                     str(my_bucket_object.key).endswith("jar")])
-#jar_artifact_location = "s3://" + bucket_name + "/" + jar_artifact
-jar_artifact_location = "s3://data-ingestion-scala-artifacts/jobs/build-scala-spark-artifacts/48/target/scala-2.12/spark-engine_2.12-0.0.1.jar"
+session = boto3.Session()
+s3 = session.resource('s3')
+bucket_name = "data-ingestion-scala-artifacts"
+my_bucket = s3.Bucket(bucket_name)
+jar_artifact = max([str(my_bucket_object.key) for my_bucket_object in my_bucket.objects.all() if \
+                     str(my_bucket_object.key).endswith("jar")])
+jar_artifact_location = "s3://" + bucket_name + "/" + jar_artifact
 
 def retrieve_s3_file(**kwargs):
     s3_location = kwargs['dag_run'].conf['s3_location'] 

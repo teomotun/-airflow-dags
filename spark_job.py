@@ -76,7 +76,7 @@ SPARK_TEST_STEPS = [
                 '/usr/bin/spark-submit', 
                 '--class', 'Driver.MainApp',
                 '--master', 'yarn',
-                '--deploy-mode','cluster',
+                '--deploy-mode','client',
                 '--num-executors','2',
                 '--driver-memory','512m',
                 '--executor-memory','3g',
